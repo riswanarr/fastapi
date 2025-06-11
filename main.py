@@ -1,9 +1,13 @@
 from  fastapi import FastAPI
 from typing import Optional,List
 from pydantic import BaseModel
-from dotenv import load_dotenv
+import os
 import requests
+from dotenv import load_dotenv
 
+
+load_dotenv()
+api_key = os.getenv("api_key")
 app=FastAPI()
 """
 curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=GEMINI_API_KEY" \
@@ -40,7 +44,11 @@ def read_root(conditional : Optional[bool]=True):
 def read_root(id:int):
     return {"message" : f"hello world {id}"}
 
+@app.post("/ask")
+def ask(ques:Contents):
+    response = requests.post(f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}',json=ques.model_dump())
+    answer = response.json()
+    return answer["candidates"][0]["content"]["parts"][0]["text"]
 
 
 
-   
